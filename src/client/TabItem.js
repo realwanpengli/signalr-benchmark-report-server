@@ -12,14 +12,15 @@ export default class TabItem extends Component {
 
 
   render() {
-    const select = () => {
+    const select = (time) => {
       return () => {
-        emitter.emit("selectNewTimestamp", this.props.time);
+        // emitter.emit("selectNewTimestamp", this.props.time);
+        this.props.updateTimestamp(time);
       }
     };
     return (
       <li className="nav-item">
-        <a className={"nav-link " + this.props.active} href='#' onClick={select()}>{this.props.time}</a>
+        <a className={"nav-link " + this.props.active} href='#' onClick={select(this.props.time)}>{this.props.time}</a>
       </li>
     );
   }

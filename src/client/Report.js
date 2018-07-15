@@ -9,8 +9,10 @@ import Content from "./Content";
 export default class Report extends Component {
   constructor(props) {
     super(props);
-    this.state = { timestamps: null, selected: null };
+    this.state = { timestamps: null, selectedTimestamp: null };
+    this.updateTimestamp = this.updateTimestamp.bind(this);
   }
+
 
   componentDidMount() {
     fetch("/api/getTimestamps")
@@ -20,10 +22,15 @@ export default class Report extends Component {
         var i = 0;
         var listItems = timestamps.map(time => {
           i++;
-          return (<TabItem time={time} active={i == 1 ? "active" : ""} key={time}></TabItem>);
+          return (<TabItem time={time} active={i == 1 ? "active" : ""} key={time} updateTimestamp={this.updateTimestamp}></TabItem>);
         });
         this.setState({timestamps: listItems});
       });
+  }
+
+  updateTimestamp(timestamp) {
+    console.log('update time', timestamp);
+    this.setState({selectedTimestamp: timestamp});
   }
 
   render() {
@@ -35,7 +42,7 @@ export default class Report extends Component {
           </ul>
         </div>
         <div className="col-10">
-          <Content/>
+          <Content timestamp={this.state.selectedTimestamp}/>
         </div>
       </div>
     );

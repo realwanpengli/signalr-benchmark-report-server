@@ -4,36 +4,44 @@ import ReactDOM from 'react-dom';
 import "bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import emitter from "../ev"
-import { timingSafeEqual } from 'crypto';
+import { constants } from '../Constants';
 
 export default class Filter extends Component {
     constructor(props) {
         super(props);
+        
+        var timestamp = this.props.timestamp;
+        console.log("selected timestamp", this.props.timestamp);
+
         this.state = { 
-            serviceTypes: null, 
-            transportTypes: null, 
-            hubProtocols: null, 
-            scenarios: null, 
-            connections: null
+            serviceTypes: {}, 
+            transportTypes: {}, 
+            hubProtocols: {}, 
+            scenarios: {}, 
+            connections: {},
+            selected: {
+                serviceTypes: null,
+                transportTypes: null,
+                hubProtocols: null,
+                scenarios: null,
+                connections: null
+            }
         };
-    }
 
+        this.toRadio = this.toRadio.bind(this);
+
+        
+    }
     
-    componentWillUnmount() {
-        emitter.removeListener(this.eventEmitter);
-    }
+    componentWillReceiveProps(nextProps) {
+        if (this.props.timestamp != nextProps.timestamp) {
+            var serviceTypes = {};
+            var transportTypes = {};
+            var hubProtocols = {};
+            var scenarios = {};
+            var connections = {};
 
-    componentDidMount() {
-        var serviceTypes = {};
-        var transportTypes = {};
-        var hubProtocols = {};
-        var scenarios = {};
-        var connections = {};
-
-        
-        
-        this.eventEmitter = emitter.addListener("selectNewTimestamp", (timestamp) => {
-            console.log("selected timestamp", timestamp);
+            var timestamp = nextProps.timestamp;
 
             fetch('/api/getTypes?timestamp=' + timestamp)
                 .then(res => res.json())
@@ -46,33 +54,55 @@ export default class Filter extends Component {
                         scenarios[type[3]] = 0;
                         connections[type[4]] = 0;
                     });
+
                     
-                    const toRadio = (data, group) => 
-                    (<div className="form-check form-check-inline" key={data}>
-                        <input className="form-check-input" type="radio" name={group} id={data} value={data} />
-                        <label className="form-check-label" htmlFor={data}>{data}</label>
-                    </div>);
                     this.setState({
-                        serviceTypes: Object.keys(serviceTypes).map(data => toRadio(data, 'serviceTypes')),
-                        transportTypes: Object.keys(transportTypes).map(data => toRadio(data, 'transportTypes')),
-                        hubProtocols: Object.keys(hubProtocols).map(data => toRadio(data, 'hubProtocols')),
-                        scenarios: Object.keys(scenarios).map(data => toRadio(data, 'scenarios')),
-                        connections: Object.keys(connections).map(data => toRadio(data, 'connections'))
+                        serviceTypes: serviceTypes,
+                        transportTypes: transportTypes, 
+                        hubProtocols: hubProtocols, 
+                        scenarios: scenarios, 
+                        connections: connections
                     });
                 });
-        });
+        }
     }
 
+     toRadio(data, group) {
+        var self = this;
+        const select = (data, group) => {
+            return () => {
+                self.setState((prevState, props) => {
+                    prevState.selected[group] = data;
+                    return prevState;
+                }, () => {
+                    self.props.updateChart(self.state.selected);
+                });
+
+            }
+        }
+
+        return (
+            <div className="form-check form-check-inline" key={data} timestamp={this.props.timestamp}>
+                <input className="form-check-input" type="radio" name={group} id={data} value={data} onClick={select(data, group)} />
+                <label className="form-check-label" htmlFor={data}>{data}</label>
+            </div>
+        );
+    };
+
     render() {
+        
         return (
             <div className="col-12">
                 <form>
                     <div className="form-group row">
                         <div className='col-2'>
-                            Service Type
+                            Service Type 
+                        </div>
+                        <div>
+                            {this.props.timestamp}
                         </div>
                         <div className='col-10'>
-                            {this.state.serviceTypes}
+                            {Object.keys(this.state.serviceTypes).map(data => this.toRadio(data, 'serviceTypes'))}
                         </div>
                     </div>
 
@@ -81,7 +111,7 @@ export default class Filter extends Component {
                             Transport Type
                         </div>
                         <div className='col-10'>
-                            {this.state.transportTypes}
+                            {Object.keys(this.state.transportTypes).map(data => this.toRadio(data, 'transportTypes'))}
                         </div>
                     </div>
 
@@ -90,7 +120,7 @@ export default class Filter extends Component {
                             Hub Protocol Type
                         </div>
                         <div className='col-10'>
-                            {this.state.hubProtocols}
+                            {Object.keys(this.state.hubProtocols).map(data => this.toRadio(data, 'hubProtocols'))}
                         </div>
                     </div>
 
@@ -99,7 +129,7 @@ export default class Filter extends Component {
                             Scenario
                         </div>
                         <div className='col-10'>
-                            {this.state.scenarios}
+                            {Object.keys(this.state.scenarios).map(data => this.toRadio(data, 'scenarios'))}
                         </div>
                     </div>
 
@@ -108,7 +138,7 @@ export default class Filter extends Component {
                             Connection
                         </div>
                         <div className='col-10'>
-                            {this.state.connections}
+                            {Object.keys(this.state.connections).map(data => this.toRadio(data, 'connections'))}
                         </div>
                     </div>
                 </form>
