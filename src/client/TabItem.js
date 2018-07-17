@@ -14,7 +14,6 @@ export default class TabItem extends Component {
   render() {
     const select = (time) => {
       return () => {
-        // emitter.emit("selectNewTimestamp", this.props.time);
         this.props.updateTimestamp(time);
       }
     };

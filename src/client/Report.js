@@ -19,10 +19,12 @@ export default class Report extends Component {
       .then(res => res.json())
       .then(timestamps => {
         console.log("timestamps", timestamps);
-        var i = 0;
+        var i = -1;
         var listItems = timestamps.map(time => {
           i++;
-          return (<TabItem time={time} active={i == 1 ? "active" : ""} key={time} updateTimestamp={this.updateTimestamp}></TabItem>);
+          var item = (<TabItem time={time} active={i == 1 ? "active" : ""} key={time} updateTimestamp={this.updateTimestamp}></TabItem>);
+          if (i == 0) this.setState({ selectedTimestamp: time });
+          return item;
         });
         this.setState({timestamps: listItems});
       });

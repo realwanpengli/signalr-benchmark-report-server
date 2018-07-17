@@ -56,18 +56,30 @@ export default class Filter extends Component {
                     });
 
                     
-                    this.setState({
-                        serviceTypes: serviceTypes,
-                        transportTypes: transportTypes, 
-                        hubProtocols: hubProtocols, 
-                        scenarios: scenarios, 
-                        connections: connections
+                    this.setState((prevState, props) => {
+                        prevState.serviceTypes = serviceTypes;
+                        prevState.transportTypes = transportTypes;
+                        prevState.hubProtocols = hubProtocols;
+                        prevState.scenarios = scenarios;
+                        prevState.connections = connections;
+                        if (prevState.selected.serviceTypes == null ||
+                            Object.keys(prevState.selected).length == 0) 
+                            prevState.selected = {
+                                serviceTypes: Object.keys(serviceTypes)[0],
+                                transportTypes: Object.keys(transportTypes)[0],
+                                hubProtocols: Object.keys(hubProtocols)[0],
+                                scenarios: Object.keys(scenarios)[0],
+                                connections: Object.keys(connections)[0]
+                            };
+                    }, () => {
+                        this.props.updateChart(this.state.selected);
                     });
+                    
                 });
         }
     }
 
-     toRadio(data, group) {
+     toRadio(i, data, group) {
         var self = this;
         const select = (data, group) => {
             return () => {
@@ -81,13 +93,30 @@ export default class Filter extends Component {
             }
         }
 
-        return (
+        var checked = false;
+        if (i == 0) {
+            checked = true;
+        }
+
+        var radio = (
             <div className="form-check form-check-inline" key={data} timestamp={this.props.timestamp}>
-                <input className="form-check-input" type="radio" name={group} id={data} value={data} onClick={select(data, group)} />
+                <input defaultChecked={checked} className="form-check-input" type="radio" name={group} id={data} value={data} onClick={select(data, group)} />
                 <label className="form-check-label" htmlFor={data}>{data}</label>
             </div>
         );
+
+        return radio;
+
     };
+
+    
+
+    componentDidMount() {
+        console.log('mounted filter', this.state);
+        
+    }
+
+    
 
     render() {
         
@@ -99,7 +128,7 @@ export default class Filter extends Component {
                             Service Type 
                         </div>
                         <div className='col-10'>
-                            {Object.keys(this.state.serviceTypes).map(data => this.toRadio(data, 'serviceTypes'))}
+                            {Object.keys(this.state.serviceTypes).map((data,i) => this.toRadio(i, data, 'serviceTypes',))}
                         </div>
                     </div>
 
@@ -108,7 +137,7 @@ export default class Filter extends Component {
                             Transport Type
                         </div>
                         <div className='col-10'>
-                            {Object.keys(this.state.transportTypes).map(data => this.toRadio(data, 'transportTypes'))}
+                            {Object.keys(this.state.transportTypes).map((data,i) => this.toRadio(i, data, 'transportTypes'))}
                         </div>
                     </div>
 
@@ -117,7 +146,7 @@ export default class Filter extends Component {
                             Hub Protocol Type
                         </div>
                         <div className='col-10'>
-                            {Object.keys(this.state.hubProtocols).map(data => this.toRadio(data, 'hubProtocols'))}
+                            {Object.keys(this.state.hubProtocols).map((data,i) => this.toRadio(i, data, 'hubProtocols'))}
                         </div>
                     </div>
 
@@ -126,7 +155,7 @@ export default class Filter extends Component {
                             Scenario
                         </div>
                         <div className='col-10'>
-                            {Object.keys(this.state.scenarios).map(data => this.toRadio(data, 'scenarios'))}
+                            {Object.keys(this.state.scenarios).map((data,i) => this.toRadio(i, data, 'scenarios'))}
                         </div>
                     </div>
 
@@ -135,7 +164,7 @@ export default class Filter extends Component {
                             Connection
                         </div>
                         <div className='col-10'>
-                            {Object.keys(this.state.connections).map(data => this.toRadio(data, 'connections'))}
+                            {Object.keys(this.state.connections).map((data,i) => this.toRadio(i, data, 'connections'))}
                         </div>
                     </div>
                 </form>
