@@ -32,9 +32,10 @@ export default class ClassName extends Component {
 
         var ctx = document.getElementById(this.props.id).getContext('2d');
         this.setState((prevState, props) =>{
-            if (prevState.chart != null) {
-                delete prevState.chart;
-            }
+            if (prevState.chart) prevState.chart.destroy();
+            // if (prevState.chart != null) {
+            //     delete prevState.chart;
+            // }
             prevState.chart = new Chart(ctx, nextProv.config);
             return prevState;
         });
@@ -48,10 +49,8 @@ export default class ClassName extends Component {
                     <div className="col-12">
                         <h3>{this.props.title}</h3>
                     </div>
-                    {/* <div width="80%"> */}
-                        <canvas id={this.props.id}>
-                        </canvas>
-                    {/* </div> */}
+                    <canvas id={this.props.id}>
+                    </canvas>
                 </div>
             </div>
         );
