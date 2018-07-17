@@ -10,24 +10,38 @@ import 'chart.js'
 export default class ClassName extends Component {
     constructor(props) {
         super(props);
+
         this.state = {
             chart: null
         }
-
-        // var ctx = document.getElementById(this.props.chartId).getContext('2d');
-        // this.state.chart = new Chart(ctx, this.state.pieConfig);
-    }
-
-    componentDidMount() {
+        console.log('pie', this.props.id);
         
     }
 
-    componentWillUnmount() {
-        Object.key(this.eventEmitters).forEach(eventEmitter => emitter.removeListener(eventEmitter));
+    componentDidMount() {
     }
-    
-    render() {
 
+    componentWillReceiveProps(nextProv) {
+        
+
+        console.log('receive pie config', nextProv.config);
+        if (nextProv.config == null || 
+            nextProv.config.data == null || 
+            nextProv.config.options == null || 
+            nextProv.config.type == null) 
+            return;
+
+        var ctx = document.getElementById(this.props.id).getContext('2d');
+        this.setState((prevState, props) =>{
+            if (prevState.chart != null) {
+                delete prevState.chart;
+            }
+            prevState.chart = new Chart(ctx, nextProv.config);
+            return prevState;
+        });
+    }
+
+    render() {
 
         return (
             <div className="container-fluid">
@@ -35,7 +49,7 @@ export default class ClassName extends Component {
                     <div className="col-12">
                         <h2>{this.props.title}</h2>
                     </div>
-                    <canvas id={this.props.chartId}>
+                    <canvas id={this.props.id}>
                     </canvas>
                 </div>
             </div>

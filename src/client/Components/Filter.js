@@ -98,9 +98,6 @@ export default class Filter extends Component {
                         <div className='col-2'>
                             Service Type 
                         </div>
-                        <div>
-                            {this.props.timestamp}
-                        </div>
                         <div className='col-10'>
                             {Object.keys(this.state.serviceTypes).map(data => this.toRadio(data, 'serviceTypes'))}
                         </div>

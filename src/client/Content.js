@@ -11,22 +11,26 @@ import PieChart from './Components/PieChart';
 import LineChart from './Components/LineChart';
 import emitter from "./ev"
 import { constants } from "./Constants"
+import { messagePieConfigGenerator } from "./Components/Chart/MessagPieChartConfig";
+import { messageLineConfigGenerator } from "./Components/Chart/MessageLineChartConfigGenerator";
+import { messageRateLineConfigGenerator } from "./Components/Chart/MessageRateLineChartConfigGenerator";
 
 export default class Content extends Component {
     constructor(props) {
         super(props);
         this.updateChart = this.updateChart.bind(this);
         this.state = {
-            // jobConfig: {},
-            data: null
+            chartConfig: {
+                messagePie: {},
+                connectionPie: {},
+                messageLine: {},
+                messageRateLine: {}
+            }
         };
-        // var keys = Object.keys(constants.event);
-        // keys.forEach(key => this.state.jobConfig[key] = null);
-        
     }
     
     updateChart(jobConfig) {
-        console.log('jobcon', jobConfig);
+        console.log('jobcon', jobConfig, 'timestamp', this.props.timestamp);
         if (this.props.timestamp == null) return;
         for (var key in jobConfig) {
             if (jobConfig[key] == null) {
@@ -38,27 +42,19 @@ export default class Content extends Component {
         fetch(`/api/getChartData?timestamp=${this.props.timestamp}${query}`)
         .then(res => res.json())
         .then(data => {
-            console.log(data);
-        });
-    }
-
-    componentDidMount() {
-        this.eventEmitters = {};
-        var keys = Object.keys(constants.event);
-
-        keys.forEach(key => {
-            this.eventEmitters[key] = emitter.addListener(constants.event[key], (selected) => {
-                this.setState((prevState, props) => {
-                    prevState.jobConfig[key] = selected;
-                    return (prevState);
-                }, () => this.updateChart());
+            var messagePieChartConfig = messagePieConfigGenerator(data);
+            var messageLineChartConfig = messageLineConfigGenerator(data);
+            var messageRateLineChartConfig = messageRateLineConfigGenerator(data);
+            this.setState((prevState, props) => {
+                prevState.chartConfig.messagePie = messagePieChartConfig;
+                prevState.chartConfig.messageLine = messageLineChartConfig;
+                prevState.chartConfig.messageRateLine = messageRateLineChartConfig;
+                return prevState;
             });
         });
     }
 
-    componentWillUnmount() {
-        Object.key(this.eventEmitters).forEach(eventEmitter => emitter.removeListener(eventEmitter));
-    }
+    
     
     render() {
         return (
@@ -70,10 +66,13 @@ export default class Content extends Component {
                     <Table />  
                 </div>
                 <div className="row">
-                    <PieChart title="Latency Distribution In Total" id={constants.pieChartId.message} />  
+                    <PieChart title="Latency Distribution In Total" id={constants.pieChartId.messagePie} config={this.state.chartConfig.messagePie} />  
                 </div>
                 <div className="row">
-                    <LineChart title="Latency Distribution In Time"/>
+                    <PieChart title="Latency Distribution In Time" id={constants.lineChartId.messageLine} config={this.state.chartConfig.messageLine}/>
+                </div>
+                <div className="row">
+                    <PieChart title="Latency Rate Distribution In Time" id={constants.lineChartId.messageRateLine} config={this.state.chartConfig.messageRateLine} />
                 </div>
             </div>
         );

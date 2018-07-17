@@ -23,24 +23,54 @@ app.get('/api/getTypes', (req, res) => {
     types = types.map((type) => {
         return type.split('_');
     });
-    console.log("types server splited", types);
     res.send(types);
 });
 app.get('/api/getChartData', (req, res) => {
+    var queryVal = Object.keys(req.query).map(key => req.query[key]);
     const type = req.query.type;
-    const timestamps = req.query.timestamp;
+    const timestamp = req.query.timestamp;
 
     const targetFolder = benchmarkResults + timestamp + '/';
     var jobs = fs.readdirSync(targetFolder, 'utf8');
-    jobs = jobs.map((type) => {
-        return jobs.split('_');
+
+    var selectedJob = "";
+    for (var i = 0; i < jobs.length; i++) {
+        var items = jobs[i].split('_');
+        var check = true;
+        for (var j = 0; j < items.length; j++) {
+            for (var configItem of items) {
+                if (queryVal.includes(configItem) == false) {
+                    check = false;
+                }
+            }
+        }
+
+        if (check) {
+            selectedJob = jobs[i];
+            break;
+        }
+    }
+    console.log('target', targetFolder + selectedJob + '/counters.txt', 'query', req.query);
+    var text = fs.readFileSync(targetFolder + selectedJob + '/counters.txt', 'utf8');
+    var dataByTime = []
+    var lines = text.split(os.EOL);
+    lines.forEach(line => {
+        if (line.length <= 1) return;
+        var cntr = JSON.parse(line.slice(0, -1));
+        dataByTime.push(cntr);
     });
-    jobs.forEach(jobConfig => {
-        const check = jobConfig.filter(part => req.query[part] == null);
-        if (check.length > 0) return;
-        
-        res.send({});
+    var dataByKey = {"Time": []};
+    const keys = Object.keys(dataByTime[dataByTime.length - 1]["Counters"]);
+    keys.forEach(key => dataByKey[key] = []);
+    dataByTime.forEach(data => {
+        Object.keys(data["Counters"]).forEach(key => {
+            dataByKey[key].push(data["Counters"][key]);
+        });
+        dataByKey["Time"].push(data["Time"]);
     });
+    console.log('send chart data');
+    res.send(dataByKey);
+    return;
     
 });
 app.listen(8080, () => console.log('Listening on port 8080!'));
