@@ -93,8 +93,6 @@ export default class Filter extends Component {
         var self = this;
         const select = (data, group, timestamp) => {
             return () => {
-                console.log('select check box', `checkbox-${20180716135915}-${group}-${data}`, 'checked', document.getElementById(`checkbox-${20180716135915}-${group}-${data}`) != null ? document.getElementById(`checkbox-${20180716135915}-${group}-${data}`).checked : null);
-                console.log('select check box', `checkbox-${timestamp}-${group}-${data}`, 'checked', document.getElementById(`checkbox-${timestamp}-${group}-${data}`).checked);
                 self.setState((prevState, props) => {
                     // update state
                     var htmlEle = document.getElementById(`checkbox-${timestamp}-${group}-${data}`);
@@ -107,10 +105,32 @@ export default class Filter extends Component {
                 }, () => {
                     // get available options
                     var options = "";
-                    options += `options[]=${data}`;
-                    fetch(`/api/getAvailableOptions?timestamp=${timestamp}&${options}`)
+                    Object.keys(this.state.selected).forEach(key => {
+                        if (this.state.selected[key]) options += `&options[]=${this.state.selected[key]}`;
+                    });
+                    fetch(`/api/getAvailableOptions?timestamp=${timestamp}${options}`)
                     .then(res => res.json())
                     .then(filteredOptions => {
+                        this.setState((prevState, props) => {
+                            Object.keys(prevState).forEach(group => {
+                                if (group != 'selected') {
+                                    Object.keys(prevState[group]).forEach(key => {
+                                        prevState[group][key] = -1;
+                                    });
+                                }
+                            });
+                            filteredOptions.forEach(opts => {
+                                if (opts && opts.length > 0) {
+                                    Object.keys(prevState).forEach((group, i) => {
+                                        if (group != 'selected') {
+                                            prevState[group][opts[i]] = 0;
+                                        }
+                                    });
+                                }
+                            });
+                            return prevState;
+                        });
+                        
                     });
 
                     // update filter options
@@ -128,7 +148,7 @@ export default class Filter extends Component {
 
         var radio = (
             <div className="form-check form-check-inline" key={data} timestamp={this.props.timestamp}>
-                <input id={`checkbox-${timestamp}-${group}-${data}`} className="form-check-input" type="checkbox" name={`checkbox-${timestamp}-${group}-${data}`} value={data+timestamp} onClick={select(data, group, timestamp)}/>
+                <input disabled={this.state[group][data] == -1 ? true : false} id={`checkbox-${timestamp}-${group}-${data}`} className="form-check-input" type="checkbox" name={`checkbox-${timestamp}-${group}-${data}`} value={data+timestamp} onClick={select(data, group, timestamp)}/>
                 <label className="form-check-label" htmlFor={`checkbox-${timestamp}-${group}-${data}`}>{data}</label>
             </div>
         );

@@ -17,7 +17,6 @@ export default class TabItem extends Component {
         this.props.updateTimestamp(time);
         var eles = document.getElementsByClassName('nav-link');
         [].forEach.call(eles, ele => {
-          console.log('xxxx', ele);
           ele.className = 'nav-link';
           if (ele.id == `time-${time}`) ele.className += ' active ';
         });
