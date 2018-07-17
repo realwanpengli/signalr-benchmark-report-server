@@ -55,7 +55,6 @@ var messageLineConfigGenerator = function (data) {
         ratioData[key] = [];
     });
 
-    console.log('ratio data', ratioData);
     for (var i = 0; i < messageLabels.length; i++) {
         var sum = 0.0;
         for (var j = 0; j < latencyKeys.length; j++) {

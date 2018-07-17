@@ -73,4 +73,4 @@ app.get('/api/getChartData', (req, res) => {
     return;
     
 });
-app.listen(8080, () => console.log('Listening on port 8080!'));
+app.listen(8787, () => console.log('Listening on port 8787!'));

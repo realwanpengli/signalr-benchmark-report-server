@@ -30,7 +30,6 @@ export default class Content extends Component {
     }
     
     updateChart(jobConfig) {
-        console.log('jobcon', jobConfig, 'timestamp', this.props.timestamp);
         if (this.props.timestamp == null) return;
         for (var key in jobConfig) {
             if (jobConfig[key] == null) {
@@ -62,8 +61,11 @@ export default class Content extends Component {
                 <div className="row">
                     <Filter timestamp={this.props.timestamp} updateChart={this.updateChart}/>
                 </div>
-                <div className="row">
-                    <Table />  
+                <div>
+                    <h3>Summary</h3>
+                    <div className="row">
+                        <Table />  
+                    </div>
                 </div>
                 <div className="row">
                     <PieChart title="Latency Distribution In Total" id={constants.pieChartId.messagePie} config={this.state.chartConfig.messagePie} />  

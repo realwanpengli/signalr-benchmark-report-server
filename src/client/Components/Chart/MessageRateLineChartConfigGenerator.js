@@ -55,7 +55,6 @@ var messageRateLineConfigGenerator = function (data) {
         diffData[key] = [];
     });
 
-    console.log('ratio data', diffData);
     for (var i = 0; i < messageLabels.length - 1; i++) {
         for (var j = 0; j < latencyKeys.length; j++) {
             diffData[latencyKeys[j]].push(data[latencyKeys[j]][i+1] - data[latencyKeys[j]][i]);

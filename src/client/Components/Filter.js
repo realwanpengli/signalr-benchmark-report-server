@@ -9,7 +9,7 @@ import { constants } from '../Constants';
 export default class Filter extends Component {
     constructor(props) {
         super(props);
-        
+        // this.refs = React.createRef();
         var timestamp = this.props.timestamp;
         console.log("selected timestamp", this.props.timestamp);
 
@@ -29,7 +29,7 @@ export default class Filter extends Component {
         };
 
         this.toRadio = this.toRadio.bind(this);
-
+        this.handleChange = this.handleChange.bind(this);
         
     }
     
@@ -46,7 +46,6 @@ export default class Filter extends Component {
             fetch('/api/getTypes?timestamp=' + timestamp)
                 .then(res => res.json())
                 .then(types => {
-                    console.log("typesx", types);
                     types.forEach(type => {
                         serviceTypes[type[0]] = 0;
                         transportTypes[type[1]] = 0;
@@ -62,15 +61,23 @@ export default class Filter extends Component {
                         prevState.hubProtocols = hubProtocols;
                         prevState.scenarios = scenarios;
                         prevState.connections = connections;
-                        if (prevState.selected.serviceTypes == null ||
-                            Object.keys(prevState.selected).length == 0) 
-                            prevState.selected = {
-                                serviceTypes: Object.keys(serviceTypes)[0],
-                                transportTypes: Object.keys(transportTypes)[0],
-                                hubProtocols: Object.keys(hubProtocols)[0],
-                                scenarios: Object.keys(scenarios)[0],
-                                connections: Object.keys(connections)[0]
-                            };
+                        
+                        if (prevState.selected.serviceTypes in serviceTypes == false) {
+                            prevState.selected.serviceTypes = Object.keys(serviceTypes)[0];
+                        }
+                        if (prevState.selected.transportTypes in transportTypes == false) {
+                            prevState.selected.transportTypes = Object.keys(transportTypes)[0];
+                        } 
+                        if (prevState.selected.hubProtocols in hubProtocols == false) {
+                            prevState.selected.hubProtocols = Object.keys(hubProtocols)[0];
+                        } 
+                        if (prevState.selected.scenarios in scenarios == false) {
+                            prevState.selected.scenarios = Object.keys(scenarios)[0];
+                        } 
+                        if (prevState.selected.connections in connections == false) {
+                            prevState.selected.connections = Object.keys(connections)[0];
+                        }
+                        return prevState;
                     }, () => {
                         this.props.updateChart(this.state.selected);
                     });
@@ -87,6 +94,16 @@ export default class Filter extends Component {
                     prevState.selected[group] = data;
                     return prevState;
                 }, () => {
+                    console.log('start');
+                    Object.keys(this.state[group]).forEach(ele => {
+                        if (ele != data) {
+                            var htmlEle = document.getElementById(`radio-${group}-${ele}`);
+                            if (htmlEle != null) htmlEle.checked = false;
+                        } else {
+                            var htmlEle = document.getElementById(`radio-${group}-${ele}`);
+                            if (htmlEle != null) htmlEle.checked = true;
+                        }
+                    });
                     self.props.updateChart(self.state.selected);
                 });
 
@@ -100,7 +117,7 @@ export default class Filter extends Component {
 
         var radio = (
             <div className="form-check form-check-inline" key={data} timestamp={this.props.timestamp}>
-                <input defaultChecked={checked} className="form-check-input" type="radio" name={group} id={data} value={data} onClick={select(data, group)} />
+                <input id={`radio-${group}-${data}`} defaultChecked={checked} className="form-check-input" type="radio" name={group} value={data} onClick={select(data, group)} onChange={this.handleChange}/>
                 <label className="form-check-label" htmlFor={data}>{data}</label>
             </div>
         );
@@ -116,7 +133,11 @@ export default class Filter extends Component {
         
     }
 
-    
+    handleChange() {
+        return () => {
+
+        };
+    }
 
     render() {
         

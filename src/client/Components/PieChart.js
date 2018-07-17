@@ -24,7 +24,6 @@ export default class ClassName extends Component {
     componentWillReceiveProps(nextProv) {
         
 
-        console.log('receive pie config', nextProv.config);
         if (nextProv.config == null || 
             nextProv.config.data == null || 
             nextProv.config.options == null || 
@@ -47,10 +46,12 @@ export default class ClassName extends Component {
             <div className="container-fluid">
                 <div className="row">
                     <div className="col-12">
-                        <h2>{this.props.title}</h2>
+                        <h3>{this.props.title}</h3>
                     </div>
-                    <canvas id={this.props.id}>
-                    </canvas>
+                    {/* <div width="80%"> */}
+                        <canvas id={this.props.id}>
+                        </canvas>
+                    {/* </div> */}
                 </div>
             </div>
         );

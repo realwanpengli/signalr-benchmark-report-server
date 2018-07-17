@@ -13,7 +13,6 @@ export default class Report extends Component {
     this.updateTimestamp = this.updateTimestamp.bind(this);
   }
 
-
   componentDidMount() {
     fetch("/api/getTimestamps")
       .then(res => res.json())
@@ -26,6 +25,7 @@ export default class Report extends Component {
           if (i == 0) this.setState({ selectedTimestamp: time });
           return item;
         });
+        listItems = listItems.reverse();
         this.setState({timestamps: listItems});
       });
   }

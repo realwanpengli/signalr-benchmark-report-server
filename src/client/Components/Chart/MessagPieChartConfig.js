@@ -1,6 +1,5 @@
 import { constants } from "../../Constants";
 var messagePieConfigGenerator = function (data) {
-    console.log('chart data', data);
     var messageChartConfig = {
         type: "",
         data: {
