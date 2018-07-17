@@ -50,8 +50,12 @@ app.get('/api/getChartData', (req, res) => {
             break;
         }
     }
-    console.log('target', targetFolder + selectedJob + '/counters.txt', 'query', req.query);
-    var text = fs.readFileSync(targetFolder + selectedJob + '/counters.txt', 'utf8');
+    try {
+        var text = fs.readFileSync(targetFolder + selectedJob + '/counters.txt', 'utf8');
+    } catch (err) {
+        console.log(err);
+        res.send([]);
+    }
     var dataByTime = []
     var lines = text.split(os.EOL);
     lines.forEach(line => {
@@ -72,5 +76,48 @@ app.get('/api/getChartData', (req, res) => {
     res.send(dataByKey);
     return;
     
+});
+
+function filterOptions (selectedOptions, timestamp) {
+    console.log('slect options', selectedOptions);
+    const targetFolder = benchmarkResults + timestamp + '/';
+
+    var types = fs.readdirSync(targetFolder, 'utf8');
+    types = types.map((type) => {
+        return type.split('_');
+    });
+    var filteredOptions = types.map(options => {
+        var includeAllOptions = true;
+        for (var i = 0; selectedOptions && i < selectedOptions.length; i++) {
+            if (options.includes(selectedOptions[i]) == false) {
+                includeAllOptions = false;
+                break;
+            }
+        }
+        if (includeAllOptions) {
+            return options;
+        } else {
+            return [];
+        }
+    });
+
+    return filteredOptions;
+}
+
+app.get('/api/getAvailableOptions', (req, res) => {
+    res.send(filterOptions(req.query.options, req.query.timestamp));
+});
+
+app.get('/api/checkOptionsExists', (req, res) => {
+    const opts = filterOptions(req.query.options, req.query.timestamp);
+    var exist = false;
+    for (var opt of opts) {
+        if (opt.length > 0) {
+            exist = true;
+            break;
+        }
+    }
+    if (exist == true) res.send({exist: true});
+    else res.send({exist: false});
 });
 app.listen(8787, () => console.log('Listening on port 8787!'));

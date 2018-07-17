@@ -41,6 +41,11 @@ export default class Content extends Component {
         fetch(`/api/getChartData?timestamp=${this.props.timestamp}${query}`)
         .then(res => res.json())
         .then(data => {
+            console.log('chart data', data);
+            if (data == null || data.length == 0) {
+                alert('Data Not Exist');
+                return;
+            }
             var messagePieChartConfig = messagePieConfigGenerator(data);
             var messageLineChartConfig = messageLineConfigGenerator(data);
             var messageRateLineChartConfig = messageRateLineConfigGenerator(data);

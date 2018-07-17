@@ -39,7 +39,7 @@ export default class Report extends Component {
     return (
       <div className="row">
         <div className="col-2">
-          <ul className="nav flex-column">
+          <ul className="nav flex-column nav-pills">
             {this.state.timestamps}
           </ul>
         </div>

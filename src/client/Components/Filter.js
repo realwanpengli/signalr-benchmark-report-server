@@ -28,8 +28,7 @@ export default class Filter extends Component {
             }
         };
 
-        this.toRadio = this.toRadio.bind(this);
-        this.handleChange = this.handleChange.bind(this);
+        this.toRadio = this.toCheckbox.bind(this);
         
     }
     
@@ -43,17 +42,23 @@ export default class Filter extends Component {
 
             var timestamp = nextProps.timestamp;
 
-            fetch('/api/getTypes?timestamp=' + timestamp)
+            // get avalible options
+            var options = "";
+            
+            fetch('/api/getAvailableOptions?timestamp=' + timestamp + options)
                 .then(res => res.json())
                 .then(types => {
-                    types.forEach(type => {
-                        serviceTypes[type[0]] = 0;
-                        transportTypes[type[1]] = 0;
-                        hubProtocols[type[2]] = 0;
-                        scenarios[type[3]] = 0;
-                        connections[type[4]] = 0;
-                    });
+                    if (types != null && types.length > 0) {
+                        types.forEach(type => {
+                            serviceTypes[type[0]] = 0;
+                            transportTypes[type[1]] = 0;
+                            hubProtocols[type[2]] = 0;
+                            scenarios[type[3]] = 0;
+                            connections[type[4]] = 0;
+                        });
+                        
 
+                    }
                     
                     this.setState((prevState, props) => {
                         prevState.serviceTypes = serviceTypes;
@@ -61,47 +66,58 @@ export default class Filter extends Component {
                         prevState.hubProtocols = hubProtocols;
                         prevState.scenarios = scenarios;
                         prevState.connections = connections;
-                        
-                        if (prevState.selected.serviceTypes in serviceTypes == false) {
-                            prevState.selected.serviceTypes = Object.keys(serviceTypes)[0];
-                        }
-                        if (prevState.selected.transportTypes in transportTypes == false) {
-                            prevState.selected.transportTypes = Object.keys(transportTypes)[0];
-                        } 
-                        if (prevState.selected.hubProtocols in hubProtocols == false) {
-                            prevState.selected.hubProtocols = Object.keys(hubProtocols)[0];
-                        } 
-                        if (prevState.selected.scenarios in scenarios == false) {
-                            prevState.selected.scenarios = Object.keys(scenarios)[0];
-                        } 
-                        if (prevState.selected.connections in connections == false) {
-                            prevState.selected.connections = Object.keys(connections)[0];
-                        }
+
+                        Object.keys(prevState.selected).forEach(group => prevState.selected[group] = null);
+
+                        console.log('prev state', prevState);
                         return prevState;
                     }, () => {
-                        this.props.updateChart(this.state.selected);
+                        Object.keys(this.state).forEach(group =>{
+                            if (group != 'selected') {
+                                Object.keys(this.state[group]).forEach(data => {
+                                    var htmlEle = document.getElementById(`checkbox-${timestamp}-${group}-${data}`);
+                                    if (htmlEle != null) {
+                                        htmlEle.checked = false;
+                                    }
+                                });
+                                
+                            }
+                        });
                     });
                     
                 });
         }
     }
 
-     toRadio(i, data, group) {
+    toCheckbox(i, data, group, timestamp) {
         var self = this;
-        const select = (data, group) => {
+        const select = (data, group, timestamp) => {
             return () => {
+                console.log('select check box', `checkbox-${20180716135915}-${group}-${data}`, 'checked', document.getElementById(`checkbox-${20180716135915}-${group}-${data}`) != null ? document.getElementById(`checkbox-${20180716135915}-${group}-${data}`).checked : null);
+                console.log('select check box', `checkbox-${timestamp}-${group}-${data}`, 'checked', document.getElementById(`checkbox-${timestamp}-${group}-${data}`).checked);
                 self.setState((prevState, props) => {
-                    prevState.selected[group] = data;
+                    // update state
+                    var htmlEle = document.getElementById(`checkbox-${timestamp}-${group}-${data}`);
+                    if (htmlEle != null && htmlEle.checked == true) {
+                        prevState.selected[group] = data;
+                    } else if (htmlEle != null && htmlEle.checked == false) {
+                        prevState.selected[group] = null;
+                    }
                     return prevState;
                 }, () => {
-                    console.log('start');
+                    // get available options
+                    var options = "";
+                    options += `options[]=${data}`;
+                    fetch(`/api/getAvailableOptions?timestamp=${timestamp}&${options}`)
+                    .then(res => res.json())
+                    .then(filteredOptions => {
+                    });
+
+                    // update filter options
                     Object.keys(this.state[group]).forEach(ele => {
                         if (ele != data) {
-                            var htmlEle = document.getElementById(`radio-${group}-${ele}`);
+                            var htmlEle = document.getElementById(`checkbox-${timestamp}-${group}-${ele}`);
                             if (htmlEle != null) htmlEle.checked = false;
-                        } else {
-                            var htmlEle = document.getElementById(`radio-${group}-${ele}`);
-                            if (htmlEle != null) htmlEle.checked = true;
                         }
                     });
                     self.props.updateChart(self.state.selected);
@@ -110,33 +126,18 @@ export default class Filter extends Component {
             }
         }
 
-        var checked = false;
-        if (i == 0) {
-            checked = true;
-        }
-
         var radio = (
             <div className="form-check form-check-inline" key={data} timestamp={this.props.timestamp}>
-                <input id={`radio-${group}-${data}`} defaultChecked={checked} className="form-check-input" type="radio" name={group} value={data} onClick={select(data, group)} onChange={this.handleChange}/>
-                <label className="form-check-label" htmlFor={data}>{data}</label>
+                <input id={`checkbox-${timestamp}-${group}-${data}`} className="form-check-input" type="checkbox" name={`checkbox-${timestamp}-${group}-${data}`} value={data+timestamp} onClick={select(data, group, timestamp)}/>
+                <label className="form-check-label" htmlFor={`checkbox-${timestamp}-${group}-${data}`}>{data}</label>
             </div>
         );
-
         return radio;
 
     };
 
-    
-
     componentDidMount() {
-        console.log('mounted filter', this.state);
         
-    }
-
-    handleChange() {
-        return () => {
-
-        };
     }
 
     render() {
@@ -149,7 +150,7 @@ export default class Filter extends Component {
                             Service Type 
                         </div>
                         <div className='col-10'>
-                            {Object.keys(this.state.serviceTypes).map((data,i) => this.toRadio(i, data, 'serviceTypes',))}
+                            {Object.keys(this.state.serviceTypes).map((data,i) => this.toCheckbox(i, data, 'serviceTypes', this.props.timestamp))}
                         </div>
                     </div>
 
@@ -158,7 +159,7 @@ export default class Filter extends Component {
                             Transport Type
                         </div>
                         <div className='col-10'>
-                            {Object.keys(this.state.transportTypes).map((data,i) => this.toRadio(i, data, 'transportTypes'))}
+                            {Object.keys(this.state.transportTypes).map((data, i) => this.toCheckbox(i, data, 'transportTypes', this.props.timestamp))}
                         </div>
                     </div>
 
@@ -167,7 +168,7 @@ export default class Filter extends Component {
                             Hub Protocol Type
                         </div>
                         <div className='col-10'>
-                            {Object.keys(this.state.hubProtocols).map((data,i) => this.toRadio(i, data, 'hubProtocols'))}
+                            {Object.keys(this.state.hubProtocols).map((data, i) => this.toCheckbox(i, data, 'hubProtocols', this.props.timestamp))}
                         </div>
                     </div>
 
@@ -176,7 +177,7 @@ export default class Filter extends Component {
                             Scenario
                         </div>
                         <div className='col-10'>
-                            {Object.keys(this.state.scenarios).map((data,i) => this.toRadio(i, data, 'scenarios'))}
+                            {Object.keys(this.state.scenarios).map((data, i) => this.toCheckbox(i, data, 'scenarios', this.props.timestamp))}
                         </div>
                     </div>
 
@@ -185,7 +186,7 @@ export default class Filter extends Component {
                             Connection
                         </div>
                         <div className='col-10'>
-                            {Object.keys(this.state.connections).map((data,i) => this.toRadio(i, data, 'connections'))}
+                            {Object.keys(this.state.connections).map((data, i) => this.toCheckbox(i, data, 'connections', this.props.timestamp))}
                         </div>
                     </div>
                 </form>
