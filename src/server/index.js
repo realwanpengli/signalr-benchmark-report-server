@@ -83,11 +83,11 @@ function filterOptions (selectedOptions, timestamp) {
     const targetFolder = benchmarkResults + timestamp + '/';
 
     var types = fs.readdirSync(targetFolder, 'utf8');
-    types = types.map((type) => {
+    var typesArray = types.map((type) => {
         return type.split('_');
     });
-    var filteredOptions = types.map(options => {
-        var includeAllOptions = true;
+    var filteredOptions = typesArray.map((options, ind) => {
+        var includeAllOptions = fs.existsSync(targetFolder + types[ind] + "/counters.txt");
         for (var i = 0; selectedOptions && i < selectedOptions.length; i++) {
             if (options.includes(selectedOptions[i]) == false) {
                 includeAllOptions = false;

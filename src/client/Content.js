@@ -67,10 +67,10 @@ export default class Content extends Component {
                     <Filter timestamp={this.props.timestamp} updateChart={this.updateChart}/>
                 </div>
                 <div>
-                    <h3>Summary</h3>
+                    {/* <h3>Summary</h3>
                     <div className="row">
                         <Table />  
-                    </div>
+                    </div> */}
                 </div>
                 <div className="row">
                     <PieChart title="Latency Distribution In Total" id={constants.pieChartId.messagePie} config={this.state.chartConfig.messagePie} />  

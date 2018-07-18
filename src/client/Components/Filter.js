@@ -48,8 +48,11 @@ export default class Filter extends Component {
             fetch('/api/getAvailableOptions?timestamp=' + timestamp + options)
                 .then(res => res.json())
                 .then(types => {
-                    if (types != null && types.length > 0) {
+                    console.log('CCCCCC', types);
+                    if (types != null && types != undefined && types.length > 0) {
                         types.forEach(type => {
+                            if (type == null || type == undefined || type.length == 0) return;
+                            console.log('eeeee', type);
                             serviceTypes[type[0]] = 0;
                             transportTypes[type[1]] = 0;
                             hubProtocols[type[2]] = 0;
@@ -59,7 +62,7 @@ export default class Filter extends Component {
                         
 
                     }
-                    
+                    console.log('DDDD', serviceTypes);
                     this.setState((prevState, props) => {
                         prevState.serviceTypes = serviceTypes;
                         prevState.transportTypes = transportTypes;
