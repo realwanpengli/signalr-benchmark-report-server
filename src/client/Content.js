@@ -73,13 +73,13 @@ export default class Content extends Component {
                     </div> */}
                 </div>
                 <div className="row">
-                    <PieChart title="Latency Distribution In Total" id={constants.pieChartId.messagePie} config={this.state.chartConfig.messagePie} />  
+                    <PieChart title="Latency Distribution In Total" description="" id={constants.pieChartId.messagePie} config={this.state.chartConfig.messagePie} />  
                 </div>
                 <div className="row">
-                    <PieChart title="Latency Distribution In Time" id={constants.lineChartId.messageLine} config={this.state.chartConfig.messageLine}/>
+                    <PieChart title="Latency Distribution In Time" description="" id={constants.lineChartId.messageLine} config={this.state.chartConfig.messageLine}/>
                 </div>
                 <div className="row">
-                    <PieChart title="Latency Rate Distribution In Time" id={constants.lineChartId.messageRateLine} config={this.state.chartConfig.messageRateLine} />
+                    <PieChart title="Sending/Receiving rate" description="Message count for sending and receiving per second" id={constants.lineChartId.messageRateLine} config={this.state.chartConfig.messageRateLine} />
                 </div>
             </div>
         );

@@ -6,9 +6,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import emitter from "../ev"
 import {constants} from "../Constants"
 import 'chart.js'
-import "chart.piecelabel.js";
 
-export default class ClassName extends Component {
+export default class Chart extends Component {
     constructor(props) {
         super(props);
 
@@ -48,8 +47,7 @@ export default class ClassName extends Component {
             <div className="container-fluid">
                 <div className="row">
                     <div className="col-12">
-                        <h5>{this.props.title}</h5>
-                        <p>{this.props.description}</p>
+                        <h3>{this.props.title}</h3>
                     </div>
                     <canvas id={this.props.id}>
                     </canvas>

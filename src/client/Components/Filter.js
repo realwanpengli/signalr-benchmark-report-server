@@ -48,11 +48,9 @@ export default class Filter extends Component {
             fetch('/api/getAvailableOptions?timestamp=' + timestamp + options)
                 .then(res => res.json())
                 .then(types => {
-                    console.log('CCCCCC', types);
                     if (types != null && types != undefined && types.length > 0) {
                         types.forEach(type => {
                             if (type == null || type == undefined || type.length == 0) return;
-                            console.log('eeeee', type);
                             serviceTypes[type[0]] = 0;
                             transportTypes[type[1]] = 0;
                             hubProtocols[type[2]] = 0;
