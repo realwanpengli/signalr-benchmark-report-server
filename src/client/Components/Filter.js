@@ -28,7 +28,7 @@ export default class Filter extends Component {
             }
         };
 
-        this.toRadio = this.toCheckbox.bind(this);
+        this.toCheckbox = this.toCheckbox.bind(this);
         
     }
     
@@ -60,7 +60,6 @@ export default class Filter extends Component {
                         
 
                     }
-                    console.log('DDDD', serviceTypes);
                     this.setState((prevState, props) => {
                         prevState.serviceTypes = serviceTypes;
                         prevState.transportTypes = transportTypes;
@@ -149,7 +148,7 @@ export default class Filter extends Component {
 
         var radio = (
             <div className="form-check form-check-inline" key={data} timestamp={this.props.timestamp}>
-                <input disabled={this.state[group][data] == -1 ? true : false} id={`checkbox-${timestamp}-${group}-${data}`} className="form-check-input" type="checkbox" name={`checkbox-${timestamp}-${group}-${data}`} value={data+timestamp} onClick={select(data, group, timestamp)}/>
+                <input disabled={this.state[group][data] == -1 ? true : false} id={`checkbox-${timestamp}-${group}-${data}`} className="form-check-input" type="radio" name={`checkbox-${timestamp}-${group}-${data}`} value={data+timestamp} onClick={select(data, group, timestamp)}/>
                 <label className="form-check-label" htmlFor={`checkbox-${timestamp}-${group}-${data}`}>{data}</label>
             </div>
         );
