@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import Sticky from 'react-sticky-el';
 
 import "bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -9,11 +10,16 @@ import Filter from './Components/Filter';
 import Table from './Components/Table';
 import PieChart from './Components/PieChart';
 import LineChart from './Components/LineChart';
+import Summary from './Components/Summary'
+
 import emitter from "./ev"
 import { constants } from "./Constants"
 import { messagePieConfigGenerator } from "./Components/Chart/MessagPieChartConfig";
 import { messageLineConfigGenerator } from "./Components/Chart/MessageLineChartConfigGenerator";
 import { messageRateLineConfigGenerator } from "./Components/Chart/MessageRateLineChartConfigGenerator";
+import { timingSafeEqual } from 'crypto';
+
+var style = {};
 
 export default class Content extends Component {
     constructor(props) {
@@ -29,6 +35,10 @@ export default class Content extends Component {
         };
     }
     
+    componentDidMount() {
+        
+    }
+
     updateChart(jobConfig) {
         if (this.props.timestamp == null) return;
         for (var key in jobConfig) {
@@ -59,27 +69,34 @@ export default class Content extends Component {
     }
 
     
+
     
+
     render() {
         return (
-            <div>
+            <div >
+                <Summary timestamp={this.props.timestamp}/>
                 <div className="row">
-                    <Filter timestamp={this.props.timestamp} updateChart={this.updateChart}/>
-                </div>
-                <div>
-                    {/* <h3>Summary</h3>
-                    <div className="row">
-                        <Table />  
-                    </div> */}
-                </div>
-                <div className="row">
-                    <PieChart title="Latency Distribution In Total" description="" id={constants.pieChartId.messagePie} config={this.state.chartConfig.messagePie} />  
-                </div>
-                <div className="row">
-                    <PieChart title="Latency Distribution In Time" description="" id={constants.lineChartId.messageLine} config={this.state.chartConfig.messageLine}/>
-                </div>
-                <div className="row">
-                    <PieChart title="Sending/Receiving rate" description="Message count for sending and receiving per second" id={constants.lineChartId.messageRateLine} config={this.state.chartConfig.messageRateLine} />
+                    <div className="col-4">
+                        <Sticky>
+                            <div className="row">
+                                <Filter timestamp={this.props.timestamp} updateChart={this.updateChart} />
+                            </div>
+                        </Sticky>
+                    </div>
+                    <div className="col-8">
+                        
+                        <div className="row">
+                            <PieChart title="Latency Distribution In Total" description="" id={constants.pieChartId.messagePie} config={this.state.chartConfig.messagePie} />
+                        </div>
+                        <div className="row">
+                            <PieChart title="Latency Distribution In Time" description="" id={constants.lineChartId.messageLine} config={this.state.chartConfig.messageLine} />
+                        </div>
+                        <div className="row">
+                            <PieChart title="Sending/Receiving rate" description="Message count for sending and receiving per second" id={constants.lineChartId.messageRateLine} config={this.state.chartConfig.messageRateLine} />
+                        </div>
+                    </div>
+
                 </div>
             </div>
         );

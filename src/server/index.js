@@ -120,4 +120,52 @@ app.get('/api/checkOptionsExists', (req, res) => {
     if (exist == true) res.send({exist: true});
     else res.send({exist: false});
 });
+
+app.get('/api/getPercentageLtOneSecond', (req, res) => {
+    var statisticList = [];
+    const timestamp = req.query.timestamp;
+    const units = req.query.units;
+
+    if (!timestamp || timestamp == 'null') {
+        res.send([]);
+    } else {
+        const dirs = fs.readdirSync(benchmarkResults + timestamp, 'utf8');
+        dirs.forEach(dir => {
+            const file = `${benchmarkResults}${timestamp}/${dir}/counters.txt`;
+            if (fs.existsSync(file)) {
+                const text = fs.readFileSync(file, 'utf8');
+                const lastRec = JSON.parse(text.split(os.EOL).slice(-2, -1)[0].slice(0, -1));
+                const totalSend = lastRec['Counters']['message:sent'] + lastRec['Counters']['message:notSentFromClient'];
+                const received = lastRec['Counters']['message:received'];
+                const totalConn = lastRec['Counters']['connection:success'] + lastRec['Counters']['connection:error']; 
+                var lt1000Percentage = totalSend == 0. ? 0. : (received - lastRec['Counters']['message:ge:1000']) / totalSend;
+                if (dir.indexOf('broadcast') >= 0) {
+                    lt1000Percentage = totalSend == 0. ? 0. : (received - lastRec['Counters']['message:ge:1000']) / (totalSend * totalConn);
+                }
+                var statistic = dir.split('_').concat([(lt1000Percentage * 100).toFixed(2).toString() + "%"]);
+                if (units.includes(statistic[0])) statisticList.push(statistic);
+            }
+        });
+        var statisticDict = {};
+        statisticList.forEach(arr => {
+            const serviceType = arr[0];
+            if (!statisticDict[serviceType]) {
+                statisticDict[serviceType] = [arr];
+            } else {
+                statisticDict[serviceType].push(arr);
+            }
+        });
+        res.send(statisticDict);
+    }
+    
+})
+
+
+app.get('/api/getUnits', (req, res) => {
+    var timestamp = req.query.timestamp;
+    const dirs = fs.readdirSync(benchmarkResults + timestamp, 'utf8');
+    var units = {};
+    dirs.forEach(dir => units[dir.split('_')[0]] = 0);
+    res.send(units);
+});
 app.listen(8787, () => console.log('Listening on port 8787!'));

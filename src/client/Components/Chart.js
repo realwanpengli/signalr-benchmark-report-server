@@ -47,7 +47,7 @@ export default class Chart extends Component {
             <div className="container-fluid">
                 <div className="row">
                     <div className="col-12">
-                        <h3>{this.props.title}</h3>
+                        <h5>{this.props.title}</h5>
                     </div>
                     <canvas id={this.props.id}>
                     </canvas>

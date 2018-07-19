@@ -6,6 +6,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import TabItem from "./TabItem";
 import Content from "./Content";
+import Sticky from "react-sticky-el";
+
 export default class Report extends Component {
   constructor(props) {
     super(props);
@@ -38,13 +40,17 @@ export default class Report extends Component {
   render() {
     return (
       <div className="row">
-        <div className="col-2">
-          <ul className="nav flex-column nav-pills">
-            {this.state.timestamps}
-          </ul>
+        <div className="col-1">
+          <Sticky>
+            <ul className="nav flex-column nav-pills">
+              {this.state.timestamps}
+            </ul>
+          </Sticky>
         </div>
-        <div className="col-10">
-          <Content timestamp={this.state.selectedTimestamp}/>
+
+        
+        <div className="col-11 ">
+            <Content timestamp={this.state.selectedTimestamp}/>
         </div>
       </div>
     );
