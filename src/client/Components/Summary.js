@@ -21,6 +21,7 @@ export default class Summary extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        console.log('^^&&^^&& will receive props');
         if (nextProps && nextProps.timestamp) {
             fetch('/api/getUnits?timestamp=' + nextProps.timestamp)
                 .then(res => res.json())
@@ -32,7 +33,12 @@ export default class Summary extends Component {
                         .then(res => res.json())
                         .then(mats => {
                             Object.keys(units).forEach(unit => tables[unit] = mats[unit]);
-                            this.setState({ tables: tables, select: Object.keys(units)[0]});
+                            // this.setState({ tables: tables, select: Object.keys(units)[0]});
+                            this.setState((prevState, props) => {
+                                prevState.tables = tables;
+                                prevState.select = prevState.select ? prevState.select : Object.keys(units)[0];
+                                return prevState;
+                            });
                         });
                 });
         }
@@ -44,12 +50,14 @@ export default class Summary extends Component {
     }
 
     updateTable(unit) {
-        this.setState({select: unit});
+        this.setState({select: unit}, () => {console.log('00000000----', this.state.select);});
+        
     }
 
     toTabs(units) {
         if (units) {
-            return units.map((key,i) => <TabItem time={key} active={i == 1 ? "active" : ""} key={key} updateTimestamp={this.updateTable}></TabItem>);
+            console.log('^^&&^^&& will to tabs', this.state.select);
+            return units.map((key, i) => <TabItem time={key} active={key == this.state.select ? `active ${key} ${this.state.select}` : ""} key={key} updateTimestamp={this.updateTable}></TabItem>);
         }
     }
 

@@ -36,8 +36,8 @@ var messagePieConfigGenerator = function (data) {
         },
         pieceLabel: {
             render: args => {
-                return `${args.label.split(' ')[0]}\n\r${args.value.toFixed(2)}%`;
-                // return `${args.label.split(' ')[0]}\n${args.value.toFixed(2)}%`;
+                // return `${args.label.split(' ')[0]}\n\r${args.value.toFixed(2)}%`;
+                return `${args.value.toFixed(2)}%`;
             },
             showActualPercentages: true,
             fontColor: function (data) {
