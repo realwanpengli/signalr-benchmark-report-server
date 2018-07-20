@@ -29,18 +29,16 @@ export default class Table extends Component {
     generateTableRows(mat) {
         if (!mat) return;
         var tbRows = [];
-        console.log('VVVVVVV', mat);
         mat.forEach((row, ind) => {
             var tds = [];
             var color='white'
             row.forEach((cell, i) => {
                 if (i == 0) return;
-                tds.push(<td key={i}>{cell}</td>);
+                tds.push(<td key={i} style={{padding: '0.3rem', fontSize: '0.5rem', textAlign: 'center'}}>{cell}</td>);
                 if (i == row.length - 1 && Number.parseFloat(cell) < 99) color = '#ff907780'; 
             });
             tbRows.push(<tr key={ind} style={{backgroundColor: color}}>{tds}</tr>);
         });
-        console.log('xxxxxxxx', tbRows);
         const tbBody = (<tbody>{tbRows}</tbody>);
         return tbBody;
     }

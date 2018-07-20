@@ -26,7 +26,7 @@ var messageRateLineConfigGenerator = function (data) {
         },
         scales: {
             yAxes: [{
-                stacked: true
+                stacked: false
             }]
         },
         plugins: {

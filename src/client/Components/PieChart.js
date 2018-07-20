@@ -28,15 +28,17 @@ export default class ClassName extends Component {
         if (nextProv.config == null || 
             nextProv.config.data == null || 
             nextProv.config.options == null || 
-            nextProv.config.type == null) 
-            return;
-
-        var ctx = document.getElementById(this.props.id).getContext('2d');
+            nextProv.config.type == null) {
+                
+        }
+        // console.log('gggggg', nextProv);
+        var el = document.getElementById(this.props.id);
+        if (!el) return;
+        // el.style = "display: block";
+        var ctx = el.getContext('2d');
+        if (!ctx) return;
         this.setState((prevState, props) =>{
             if (prevState.chart) prevState.chart.destroy();
-            // if (prevState.chart != null) {
-            //     delete prevState.chart;
-            // }
             prevState.chart = new Chart(ctx, nextProv.config);
             return prevState;
         });
@@ -45,16 +47,17 @@ export default class ClassName extends Component {
     render() {
 
         return (
-            <div className="container-fluid">
-                <div className="row">
-                    <div className="col-12">
-                        <h5>{this.props.title}</h5>
-                        <p>{this.props.description}</p>
-                    </div>
-                    <canvas id={this.props.id}>
-                    </canvas>
+                <div className="container-fluid">
+                    <div className="row">
+                        <div className="col-12">
+                            <h5>{this.props.title}</h5>
+                            <p>{this.props.description}</p>
+                        </div>
+                        <canvas id={this.props.id}>
+                        </canvas>
+                    </div>          
                 </div>
-            </div>
+            
         );
     }
 } 

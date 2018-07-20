@@ -47,9 +47,9 @@ export default class Filter extends Component {
             
             fetch('/api/getAvailableOptions?timestamp=' + timestamp + options)
                 .then(res => res.json())
-                .then(types => {
+                .then((types) => {
                     if (types != null && types != undefined && types.length > 0) {
-                        types.forEach(type => {
+                        types.forEach((type, ind) => {
                             if (type == null || type == undefined || type.length == 0) return;
                             serviceTypes[type[0]] = 0;
                             transportTypes[type[1]] = 0;
@@ -57,9 +57,8 @@ export default class Filter extends Component {
                             scenarios[type[3]] = 0;
                             connections[type[4]] = 0;
                         });
-                        
-
                     }
+
                     this.setState((prevState, props) => {
                         prevState.serviceTypes = serviceTypes;
                         prevState.transportTypes = transportTypes;
@@ -67,7 +66,17 @@ export default class Filter extends Component {
                         prevState.scenarios = scenarios;
                         prevState.connections = connections;
 
-                        Object.keys(prevState.selected).forEach(group => prevState.selected[group] = null);
+                        // set default options
+                        if (types.length > 0) {
+                            console.log('ttttt', types[0]);
+                            Object.keys(prevState.selected).forEach((key, i) => {
+                                prevState.selected[key] = types[0][i];
+                            });
+                        }
+
+                        
+                        this.props.updateChart(prevState.selected);
+                        
 
                         console.log('prev state', prevState);
                         return prevState;
@@ -83,6 +92,17 @@ export default class Filter extends Component {
                                 
                             }
                         });
+
+                        // update radio button
+                        Object.keys(this.state.selected).forEach((group) => {
+                            
+                            var el = document.getElementById(`checkbox-${this.props.timestamp}-${group}-${this.state.selected[group]}`);
+                            if (el) {
+                                el.checked = true;
+                            }
+                        });
+
+                        
                     });
                     
                 });
@@ -108,7 +128,8 @@ export default class Filter extends Component {
                     Object.keys(this.state.selected).forEach(key => {
                         if (this.state.selected[key]) options += `&options[]=${this.state.selected[key]}`;
                     });
-                    fetch(`/api/getAvailableOptions?timestamp=${timestamp}${options}`)
+
+                    fetch(`/api/getAvailableOptions?timestamp=${timestamp}${options}&mainOption=${data}`)
                     .then(res => res.json())
                     .then(filteredOptions => {
                         this.setState((prevState, props) => {
@@ -129,11 +150,23 @@ export default class Filter extends Component {
                                 }
                             });
                             return prevState;
+                        }, () => {
+                            // update radio 
+                            Object.keys(this.state).forEach(group => {
+                                if (group == 'selected') return;
+                                // console.log('000000', this.state);
+                                Object.keys(this.state[group]).forEach(data => {
+                                    var el = document.getElementById(`checkbox-label-${timestamp}-${group}-${data}`);
+                                    // console.log('el', el, group, data, this.state[group][data]);
+                                    if (el) el.style = ` color: ${this.state[group][data] == -1 ? '#c7c7c752' : 'black'}`;
+
+                                });
+                            });
                         });
                         
                     });
 
-                    // update filter options
+                    // uncheck other options
                     Object.keys(this.state[group]).forEach(ele => {
                         if (ele != data) {
                             var htmlEle = document.getElementById(`checkbox-${timestamp}-${group}-${ele}`);
@@ -148,8 +181,9 @@ export default class Filter extends Component {
 
         var radio = (
             <div className="form-check form-check-inline" key={data} timestamp={this.props.timestamp}>
-                <input disabled={this.state[group][data] == -1 ? true : false} id={`checkbox-${timestamp}-${group}-${data}`} className="form-check-input" type="radio" name={`checkbox-${timestamp}-${group}-${data}`} value={data+timestamp} onClick={select(data, group, timestamp)}/>
-                <label className="form-check-label" htmlFor={`checkbox-${timestamp}-${group}-${data}`}>{data}</label>
+                {/* <input disabled={this.state[group][data] == -1 ? true : false} id={`checkbox-${timestamp}-${group}-${data}`} className="form-check-input" type="radio" name={`checkbox-${timestamp}-${group}-${data}`} value={data + timestamp} onClick={select(data, group, timestamp)} /> */}
+                <input id={`checkbox-${timestamp}-${group}-${data}`} className="form-check-input" type="checkbox" name={`checkbox-${timestamp}-${group}-${data}`} value={data+timestamp} onClick={select(data, group, timestamp)}/>
+                <label id={`checkbox-label-${timestamp}-${group}-${data}`} className="form-check-label" htmlFor={`checkbox-${timestamp}-${group}-${data}`}>{data}</label>
             </div>
         );
         return radio;

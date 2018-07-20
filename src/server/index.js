@@ -78,7 +78,7 @@ app.get('/api/getChartData', (req, res) => {
     
 });
 
-function filterOptions (selectedOptions, timestamp) {
+function filterOptions (selectedOptions, timestamp, mainOption) {
     console.log('slect options', selectedOptions);
     const targetFolder = benchmarkResults + timestamp + '/';
 
@@ -89,7 +89,7 @@ function filterOptions (selectedOptions, timestamp) {
     var filteredOptions = typesArray.map((options, ind) => {
         var includeAllOptions = fs.existsSync(targetFolder + types[ind] + "/counters.txt");
         for (var i = 0; selectedOptions && i < selectedOptions.length; i++) {
-            if (options.includes(selectedOptions[i]) == false) {
+            if ((!mainOption && !options.includes(selectedOptions[i]) || (mainOption && !options.includes(mainOption)))) {
                 includeAllOptions = false;
                 break;
             }
@@ -105,7 +105,7 @@ function filterOptions (selectedOptions, timestamp) {
 }
 
 app.get('/api/getAvailableOptions', (req, res) => {
-    res.send(filterOptions(req.query.options, req.query.timestamp));
+    res.send(filterOptions(req.query.options, req.query.timestamp, req.query.mainOption));
 });
 
 app.get('/api/checkOptionsExists', (req, res) => {
